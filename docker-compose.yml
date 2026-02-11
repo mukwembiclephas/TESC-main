@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # --- The Gatekeeper (Nginx Proxy) ---
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      # - ./certs:/etc/nginx/certs
+    depends_on:
+      - backend
+      - frontend_client
+      - frontend_admin
+    networks:
+      - main_net
+
+  # --- Database ---
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      # Map the postgres-specific names to your .env variable names
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - main_net
+
+  # --- Backend (Django) ---
+  backend:
+    image: tinotenda762/tesc-backend:latest
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    
+    # 1. Load variables from .env (SECRET_KEY, DB_USER, etc.)
+    env_file:
+      - .env
+      
+    # 2. OVERRIDE specific variables for Docker context
+    environment:
+      - DB_HOST=db  # Crucial: Overrides 'localhost' so it finds the 'db' service
+      - DB_PORT=5432
+
+    ports:
+      - "8000:8000"
+      
+    depends_on:
+      - db
+    networks:
+      - main_net
+
+  # --- Frontend 1 (Student/Public) ---
+  frontend_client:
+    image: tinotenda762/tesc-main:latest
+    build: ./frontend 
+    networks:
+      - main_net
+
+  # --- Frontend 2 (Institution/Admin) ---
+  frontend_admin:
+    image: tinotenda762/tesc-inst:latest
+    build: ./inst
+    networks:
+      - main_net
+
+volumes:
+  postgres_data:
+
+networks:
+  main_net:
+    driver: bridge

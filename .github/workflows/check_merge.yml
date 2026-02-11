@@ -1,0 +1,37 @@
+name: Branch Mergeability Check
+
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout All
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check mergeability into main
+        run: |
+          git fetch origin main
+          git checkout main
+          if git merge --no-commit --no-ff origin/${{ github.ref_name }}; then
+            echo "Branch ${{ github.ref_name }} is mergeable with main."
+          else
+            echo "❌ Branch ${{ github.ref_name }} has merge conflicts with main."
+            exit 1
+          fi
+
+      - name: WhatsApp notify on conflict
+        if: failure()
+        run: |
+          curl -X POST https://api.twilio.com/2010-04-01/Accounts/${{ secrets.TWILIO_SID }}/Messages.json \
+            --data-urlencode "From=whatsapp:+14155238886" \
+            --data-urlencode "Body=🚨 Merge conflict detected: Branch '${{ github.ref_name }}' cannot merge into main." \
+            --data-urlencode "To=whatsapp:+263719509816" \
+            -u ${{ secrets.TWILIO_SID }}:${{ secrets.TWILIO_TOKEN }}

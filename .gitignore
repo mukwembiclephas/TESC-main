@@ -1,0 +1,57 @@
+# ------------------------
+# Python / Django
+# ------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.py.class
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# ------------------------
+# Django Migrations
+# ------------------------
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Virtual environment
+venv/
+env/
+ENV/
+*.venv/
+
+# Django stuff
+db.sqlite3
+media/
+staticfiles/
+
+# ------------------------
+# Node / React
+# ------------------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+build/
+.cache/
+.next/
+out/
+coverage/
+
+# ------------------------
+# IDE / Editors
+# ------------------------
+.vscode/
+.idea/
+*.swp
+
+# ------------------------
+# OS files
+# ------------------------
+.DS_Store
+Thumbs.db

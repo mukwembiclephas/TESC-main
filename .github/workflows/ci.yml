@@ -1,0 +1,88 @@
+name: CI/CD Docker Build & Deploy
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ------------------- Checkout -------------------
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # ------------------- Python Setup -------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: pip install -r requirements.txt
+
+      - name: Run Django tests
+        working-directory: ./backend
+        run: |
+          python manage.py migrate --noinput
+          python manage.py test
+
+      # ------------------- Node Setup -------------------
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Build React
+        working-directory: ./frontend
+        run: npm run build
+
+
+      # ------------------- Set dynamic tag -------------------
+      - name: Set Docker image tag
+        id: docker_tag
+        run: |
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            TAG="pr-${{ github.event.pull_request.number }}"
+          else
+            TAG="${GITHUB_REF_NAME}-${GITHUB_SHA::7}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      # ------------------- Build & push Django backend image -------------------
+      - name: Build & push Django backend image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/tesc-backend:${{ steps.docker_tag.outputs.tag }} ./backend
+          docker push ${{ secrets.DOCKER_USERNAME }}/tesc-backend:${{ steps.docker_tag.outputs.tag }}
+
+      # ------------------- Build & push React frontend image -------------------
+      - name: Build & push React frontend image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/tesc-frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
+          docker push ${{ secrets.DOCKER_USERNAME }}/tesc-frontend:${{ steps.docker_tag.outputs.tag }}
+
+      # ------------------- Optional VM Deploy -------------------
+      - name: Deploy to VM via SSH
+        if: success()
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_KEY }}
+          script: |
+            TAG=${{ steps.docker_tag.outputs.tag }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/tesc-backend:$TAG
+            docker pull ${{ secrets.DOCKER_USERNAME }}/tesc-frontend:$TAG
+            docker stop tesc-backend || true
+            docker rm tesc-backend || true
+            docker stop tesc-frontend || true
+            docker rm tesc-frontend || true
+            docker run -d --name tesc-backend -p 8000:8000 ${{ secrets.DOCKER_USERNAME }}/tesc-backend:$TAG
+            docker run -d --name tesc-frontend -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/tesc-frontend:$TAG

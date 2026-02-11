@@ -1,0 +1,46 @@
+name: Auto Merge Any Branch Into Main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+
+on:
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Try merge into main
+        run: |
+          git config user.email "mupezeni2001@gmail.com"
+          git config user.name "tinomupezeni"
+
+          git checkout main
+          if git merge origin/${{ github.ref_name }} --no-commit --no-ff; then
+            echo "Merge OK → pushing"
+            git merge origin/${{ github.ref_name }} --no-ff -m "Auto-merge branch ${{ github.ref_name }} into main"
+            git push origin main
+          else
+            echo "❌ Merge conflict detected for ${{ github.ref_name }}"
+            exit 1
+          fi
+
+      - name: Notify WhatsApp on failure
+        if: failure()
+        run: |
+          curl -X POST https://api.twilio.com/2010-04-01/Accounts/${{ secrets.TWILIO_SID }}/Messages.json \
+            --data-urlencode "From=whatsapp:+14155238886" \
+            --data-urlencode "Body=❌ Cannot merge branch '${{ github.ref_name }}' into main. Merge conflict detected." \
+            --data-urlencode "To=whatsapp:+263719509816" \
+            -u ${{ secrets.TWILIO_SID }}:${{ secrets.TWILIO_TOKEN }}

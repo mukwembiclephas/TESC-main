@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Government Professional Color System */
+    --background: 0 0% 98%;
+    --foreground: 215 25% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 15%;
+
+    /* Government Blue Theme */
+    --primary: 215 85% 35%;
+    --primary-foreground: 0 0% 98%;
+    --primary-light: 215 85% 85%;
+    --primary-dark: 215 85% 25%;
+
+    --secondary: 215 15% 92%;
+    --secondary-foreground: 215 25% 25%;
+
+    --muted: 215 15% 95%;
+    --muted-foreground: 215 15% 45%;
+
+    --accent: 35 100% 50%;
+    --accent-foreground: 0 0% 15%;
+    --accent-light: 35 100% 95%;
+
+    /* Success & Warning Colors */
+    --success: 145 65% 35%;
+    --success-foreground: 0 0% 98%;
+    --success-light: 145 65% 95%;
+
+    --warning: 35 85% 55%;
+    --warning-foreground: 0 0% 98%;
+    --warning-light: 35 85% 95%;
+
+    --destructive: 0 75% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 215 20% 88%;
+    --input: 215 20% 92%;
+    --ring: 215 85% 35%;
+
+    /* Government Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(215 85% 35%), hsl(215 85% 45%));
+    --gradient-secondary: linear-gradient(135deg, hsl(215 15% 92%), hsl(215 15% 98%));
+    --gradient-hero: linear-gradient(135deg, hsl(215 85% 25%), hsl(215 85% 35%), hsl(35 100% 50%));
+
+    /* Professional Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.12);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark mode for government systems */
+    --background: 215 25% 8%;
+    --foreground: 215 15% 92%;
+
+    --card: 215 25% 12%;
+    --card-foreground: 215 15% 92%;
+
+    --popover: 215 25% 12%;
+    --popover-foreground: 215 15% 92%;
+
+    --primary: 215 85% 55%;
+    --primary-foreground: 215 25% 8%;
+    --primary-light: 215 85% 25%;
+    --primary-dark: 215 85% 65%;
+
+    --secondary: 215 15% 18%;
+    --secondary-foreground: 215 15% 85%;
+
+    --muted: 215 15% 15%;
+    --muted-foreground: 215 15% 65%;
+
+    --accent: 35 100% 60%;
+    --accent-foreground: 215 25% 8%;
+    --accent-light: 35 100% 15%;
+
+    --success: 145 65% 45%;
+    --success-foreground: 215 25% 8%;
+    --success-light: 145 65% 15%;
+
+    --warning: 35 85% 65%;
+    --warning-foreground: 215 25% 8%;
+    --warning-light: 35 85% 15%;
+
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 215 25% 8%;
+
+    --border: 215 15% 22%;
+    --input: 215 15% 18%;
+    --ring: 215 85% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    @apply font-sans; /* This will now use Inter */
+  }
+}
